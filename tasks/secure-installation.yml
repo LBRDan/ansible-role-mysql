@@ -5,12 +5,17 @@
   register: mysql_version
   changed_when: false
 
+- name: Get Mysql version (Maria or not)
+  shell: mysqladmin --version
+  register: mysql_type
+  changed_when: false
+
 - name: Check if installation is MariaDB
-  when: '"MariaDB" not in mysql_type.stdout'
+  when: '"MariaDB" not in mysql_version.stdout'
   set_fact: is_mariadb=false
 
 - name: Check if installation is MariaDB
-  when: '"MariaDB" in mysql_type.stdout'
+  when: '"MariaDB" in mysql_version.stdout'
   set_fact: is_mariadb=true
 # https://www.percona.com/blog/2016/05/18/where-is-the-mysql-5-7-root-password/
 # mysql 5.7 has changd it's default password behaviour and it's different on RH
