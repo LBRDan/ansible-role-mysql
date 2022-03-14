@@ -1,6 +1,6 @@
 ---
 - name: Get MySQL version.
-  command: 'mysql --version'
+  command: "mysql --version"
   register: mysql_cli_version
   changed_when: false
   check_mode: false
@@ -62,26 +62,23 @@
 
 - name: MySQL Log Error file block
   block:
-  - name: Create error log file (if configured).
-  command: "touch {{ mysql_log_error }}"
-  args:
-    creates: "{{ mysql_log_error }}"
-    warn: false
+    - name: Create error log file (if configured).
+      command: "touch {{ mysql_log_error }}"
+      args:
+        creates: "{{ mysql_log_error }}"
+        warn: false
 
+    - name: Set ownership on error log file (if configured).
+      file:
+        path: "{{ mysql_log_error }}"
+        state: file
+        owner: mysql
+        group: "{{ mysql_log_file_group }}"
+        mode: 0640
 
-  - name: Set ownership on error log file (if configured).
-  file:
-    path: "{{ mysql_log_error }}"
-    state: file
-    owner: mysql
-    group: "{{ mysql_log_file_group }}"
-    mode: 0640
-  
   when:
-    - mysql_log | length > 0
-    - mysql_log_error | default(false)
+    - mysql_log_error | length > 0
   tags: ["skip_ansible_galaxy"]
-
 
 - name: Ensure MySQL is started and enabled on boot.
   service: "name={{ mysql_daemon }} state=started enabled={{ mysql_enabled_on_startup }}"
